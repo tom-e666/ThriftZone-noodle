@@ -1,45 +1,25 @@
-import {motion} from 'motion/react';
+"use client"
 
-export default function ProductsPage() {
+import React, {useState} from "react"
 
-  return <div>Product page</div>;
-
-}
-interface ProductInfo{
-  id:string;
-  name: string;
-  img: string;
-  star: number;
-  shortDescription: string;
-}
-const mockProducts :ProductInfo[]= [
-  {id:"ABCDEF",name:"Asus",star: 4.5, shortDescription:"RTX 4060", img:"https://anphat.com.vn/media/product/44758_laptop_asus_vivobook_14_oled_a1405va_km095w__2_.jpg"},
-  {id:"ABCDEF",name:"Asus",star: 4.5, shortDescription:"RTX 4060", img:"https://anphat.com.vn/media/product/44758_laptop_asus_vivobook_14_oled_a1405va_km095w__2_.jpg"},
-  {id:"ABCDEF",name:"Asus",star: 4.5, shortDescription:"RTX 4060" ,img:"https://anphat.com.vn/media/product/44758_laptop_asus_vivobook_14_oled_a1405va_km095w__2_.jpg"},
-  {id:"ABCDEF",name:"Asus",star: 4.5, shortDescription:"RTX 4060", img:"https://anphat.com.vn/media/product/44758_laptop_asus_vivobook_14_oled_a1405va_km095w__2_.jpg"}
-]
 import * as motion from "motion/react-client"
 import type { Variants } from "motion/react"
+import Image from 'next/image'
+import Link from "next/link";
 
-export default function ScrollTriggered() {
+export default function ProductPage() {
+  const [loadedProduct]=useState<ProductInfo[]>(mockProducts);
+
   return (
       <div style={container}>
-        {food.map(([emoji, hueA, hueB], i) => (
-            <Card i={i} emoji={emoji} hueA={hueA} hueB={hueB} key={emoji} />
+        {loadedProduct.map((product, i) => (
+            <Card key={i} i={i} product={product} />
         ))}
       </div>
   )
 }
-
-interface CardProps {
-  emoji: string
-  hueA: number
-  hueB: number
-  i: number
-}
-
-function Card({ emoji, hueA, hueB, i }: CardProps) {
-  const background = `linear-gradient(306deg, ${hue(hueA)}, ${hue(hueB)})`
+function Card({product,i}:{product:ProductInfo,i:number}) {
+  const background = `linear-gradient(306deg, ${hue(product.hueA)}, ${hue(product.hueB)})`;
 
   return (
       <motion.div
@@ -49,21 +29,53 @@ function Card({ emoji, hueA, hueB, i }: CardProps) {
           whileInView="onscreen"
           viewport={{ amount: 0.8 }}
       >
-        <div style={{ ...splash, background }} />
-        <motion.div style={card} variants={cardVariants} className="card">
-          {emoji}
-        </motion.div>
-      </motion.div>
-  )
-}
+        <motion.div
 
+            style={{ ...splash, background }}
+            variants={{
+              offscreen: {
+                clipPath: `path("M 0 383.5 C 0 372.454 8.995 365.101 20 363.5 L 580 279.5 C 590.085 278.033 600 288.454 600 299.5 L 620 530 C 620 541.046 611.046 550 600 550 L 20 550 C 8.954 550 0 541.046 0 530 Z")`,
+
+              },
+              onscreen: {
+                clipPath: `path("M 0 350 C 0 340 10 330 20 330 L 580 330 C 590 330 600 340 600 350 L 600 530 C 600 541.046 591.046 550 580 550 L 20 550 C 8.954 550 0 541.046 0 530 Z")`,
+                transition: {
+                  type: "spring",
+                  bounce: 0.4,
+                  duration: 0.8,
+                },
+              },
+            }}
+        />
+        <Link href={`/products/${product.id}`}>
+        <motion.div
+            style={card}
+            variants={cardVariants}
+            className="card"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.8 }}
+        >
+          <Image
+          src={product.img}
+          alt={product.name}
+          width={200}
+          height={100}/>
+          <br/>
+          <p className="font-bold text-3xl text-gray-700 ">{product.name}</p>
+          <p className="font-light  text-gray-700">{product.shortDescription}</p>
+        </motion.div>
+        </Link>
+      </motion.div>
+  );
+}
 const cardVariants: Variants = {
   offscreen: {
     y: 300,
+
   },
   onscreen: {
     y: 50,
-    rotate: -10,
+    rotate: 0,
     transition: {
       type: "spring",
       bounce: 0.4,
@@ -80,19 +92,20 @@ const hue = (h: number) => `hsl(${h}, 100%, 50%)`
 
 const container: React.CSSProperties = {
   margin: "100px auto",
-  maxWidth: 500,
-  paddingBottom: 100,
+  maxWidth: 600,
+  paddingBottom: 150,
   width: "100%",
+  display: "flex",          // Enable flexbox
+  flexDirection: "column",  // Stack children vertically
+  gap: "80px",
 }
-
 const cardContainer: React.CSSProperties = {
   overflow: "hidden",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
   position: "relative",
-  paddingTop: 20,
-  marginBottom: -120,
+  marginBottom: -200,
 }
 
 const splash: React.CSSProperties = {
@@ -101,28 +114,29 @@ const splash: React.CSSProperties = {
   left: 0,
   right: 0,
   bottom: 0,
-  clipPath: `path("M 0 303.5 C 0 292.454 8.995 285.101 20 283.5 L 460 219.5 C 470.085 218.033 480 228.454 480 239.5 L 500 430 C 500 441.046 491.046 450 480 450 L 20 450 C 8.954 450 0 441.046 0 430 Z")`,
+  clipPath: `path("M 0 383.5 C 0 372.454 8.995 365.101 20 363.5 L 580 279.5 C 590.085 278.033 600 288.454 600 299.5 L 620 530 C 620 541.046 611.046 550 600 550 L 20 550 C 8.954 550 0 541.046 0 530 Z")`, // Adjusted clip path for larger splash
+  paddingBottom:10,
 }
 
 const card: React.CSSProperties = {
-  fontSize: 164,
-  width: 300,
-  height: 430,
+  fontSize: 14,
+  width: 400,
+  height: 500,
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  borderRadius: 20,
+  flexDirection: "column",
+  borderRadius: 24,
   background: "#f5f5f5",
   boxShadow:
       "0 0 1px hsl(0deg 0% 0% / 0.075), 0 0 2px hsl(0deg 0% 0% / 0.075), 0 0 4px hsl(0deg 0% 0% / 0.075), 0 0 8px hsl(0deg 0% 0% / 0.075), 0 0 16px hsl(0deg 0% 0% / 0.075)",
-  transformOrigin: "10% 60%",
+  transformOrigin: "center",
 }
 
 /**
  * ==============   Data   ================
  */
-
-const food: [string, number, number][] = [
+const colors=[
   ["🍅", 340, 10],
   ["🍊", 20, 40],
   ["🍋", 60, 90],
@@ -132,3 +146,25 @@ const food: [string, number, number][] = [
   ["🍆", 260, 290],
   ["🍇", 290, 320],
 ]
+interface ProductInfo{
+  id:string;
+  name: string;
+  img: string;
+  star: number;
+  shortDescription: string;
+  hueA: number;
+  hueB: number;
+}
+const mockData= [
+  {id:"ABCDEF",name:"Asus",star: 4.5, shortDescription:"RTX 4060", img:"/next.svg"},
+  {id:"ABCDEF",name:"Asus",star: 4.5, shortDescription:"RTX 4060", img:"/next.svg"},
+  {id:"ABCDEF",name:"Asus",star: 4.5, shortDescription:"RTX 4060" ,img:"/next.svg"},
+  {id:"ABCDEF",name:"Asus",star: 4.5, shortDescription:"RTX 4060", img:"/next.svg"}
+]
+const mockProducts=mockData.map((row,index)=>{
+  const i= index % colors.length;
+      return {...row,hueA:colors[i][1],hueB:colors[i][2]} as ProductInfo;
+}
+
+)
+
